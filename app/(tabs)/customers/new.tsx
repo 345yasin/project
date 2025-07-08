@@ -367,6 +367,7 @@ export default function NewCustomerScreen() {
           </Text>
         </TouchableOpacity>
       </ScrollView>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
