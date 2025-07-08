@@ -269,177 +269,177 @@ export default function NewSaleScreen() {
         style={styles.keyboardView}
       >
         <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Sale Information</Text>
-          
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Customer *</Text>
-            <TouchableOpacity
-              style={styles.selectionButton}
-              onPress={handleCustomerSelect}
-            >
-              <User size={20} color="#6b7280" />
-              <Text style={[
-                styles.selectionButtonText,
-                !selectedCustomer && styles.placeholderText
-              ]}>
-                {selectedCustomer ? `${selectedCustomer.name} ${selectedCustomer.surname}` : "Select customer"}
-              </Text>
-            </TouchableOpacity>
-          </View>
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Sale Information</Text>
+            
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>Customer *</Text>
+              <TouchableOpacity
+                style={styles.selectionButton}
+                onPress={handleCustomerSelect}
+              >
+                <User size={20} color="#6b7280" />
+                <Text style={[
+                  styles.selectionButtonText,
+                  !selectedCustomer && styles.placeholderText
+                ]}>
+                  {selectedCustomer ? `${selectedCustomer.name} ${selectedCustomer.surname}` : "Select customer"}
+                </Text>
+              </TouchableOpacity>
+            </View>
 
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Related Interview</Text>
-            <View style={styles.interviewContainer}>
-              {filteredInterviews.length > 0 ? (
-                filteredInterviews.map((interview) => (
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>Related Interview</Text>
+              <View style={styles.interviewContainer}>
+                {filteredInterviews.length > 0 ? (
+                  filteredInterviews.map((interview) => (
+                    <TouchableOpacity
+                      key={interview.id}
+                      style={[
+                        styles.interviewButton,
+                        selectedInterview?.id === interview.id && styles.selectedInterviewButton
+                      ]}
+                      onPress={() => handleInterviewSelect(interview)}
+                    >
+                      <Text style={[
+                        styles.interviewButtonText,
+                        selectedInterview?.id === interview.id && styles.selectedInterviewButtonText
+                      ]}>
+                        {new Date(interview.interview_date || '').toLocaleDateString('tr-TR')} - {interview.operator}
+                      </Text>
+                    </TouchableOpacity>
+                  ))
+                ) : (
+                  <Text style={styles.noInterviewsText}>
+                    {formData.customer_id ? 'No interviews found for this customer' : 'Select a customer first'}
+                  </Text>
+                )}
+              </View>
+            </View>
+
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>Sale Date</Text>
+              <DatePicker
+                value={formData.sale_date}
+                onChange={(date) => setFormData(prev => ({ ...prev, sale_date: date }))}
+                style={styles.input}
+              />
+            </View>
+
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>Platform *</Text>
+              <View style={styles.platformContainer}>
+                {['phone', 'f2f', 'trendyol', 'hepsiburada', 'n11'].map((platform) => (
                   <TouchableOpacity
-                    key={interview.id}
+                    key={platform}
                     style={[
-                      styles.interviewButton,
-                      selectedInterview?.id === interview.id && styles.selectedInterviewButton
+                      styles.platformButton,
+                      formData.platform === platform && styles.selectedPlatformButton
                     ]}
-                    onPress={() => handleInterviewSelect(interview)}
+                    onPress={() => setFormData(prev => ({ ...prev, platform: platform as any }))}
                   >
                     <Text style={[
-                      styles.interviewButtonText,
-                      selectedInterview?.id === interview.id && styles.selectedInterviewButtonText
+                      styles.platformButtonText,
+                      formData.platform === platform && styles.selectedPlatformButtonText
                     ]}>
-                      {new Date(interview.interview_date || '').toLocaleDateString('tr-TR')} - {interview.operator}
+                      {platform.toUpperCase()}
                     </Text>
                   </TouchableOpacity>
-                ))
-              ) : (
-                <Text style={styles.noInterviewsText}>
-                  {formData.customer_id ? 'No interviews found for this customer' : 'Select a customer first'}
-                </Text>
-              )}
-            </View>
-          </View>
-
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Sale Date</Text>
-            <DatePicker
-              value={formData.sale_date}
-              onChange={(date) => setFormData(prev => ({ ...prev, sale_date: date }))}
-              style={styles.input}
-            />
-          </View>
-
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Platform *</Text>
-            <View style={styles.platformContainer}>
-              {['phone', 'f2f', 'trendyol', 'hepsiburada', 'n11'].map((platform) => (
-                <TouchableOpacity
-                  key={platform}
-                  style={[
-                    styles.platformButton,
-                    formData.platform === platform && styles.selectedPlatformButton
-                  ]}
-                  onPress={() => setFormData(prev => ({ ...prev, platform: platform as any }))}
-                >
-                  <Text style={[
-                    styles.platformButtonText,
-                    formData.platform === platform && styles.selectedPlatformButtonText
-                  ]}>
-                    {platform.toUpperCase()}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-          </View>
-
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Payment Method</Text>
-            <TextInput
-              style={styles.input}
-              value={formData.pay_method}
-              onChangeText={(text) => setFormData(prev => ({ ...prev, pay_method: text }))}
-              placeholder="e.g., Credit Card, Cash, Bank Transfer"
-            />
-          </View>
-
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Shipping Cost (TRY)</Text>
-            <TextInput
-              style={styles.input}
-              value={formData.shipping_cost.toString()}
-              onChangeText={(text) => setFormData(prev => ({ ...prev, shipping_cost: parseFloat(text) || 0 }))}
-              placeholder="0.00"
-              keyboardType="numeric"
-            />
-          </View>
-        </View>
-
-        <View style={styles.section}>
-          <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Products</Text>
-            <TouchableOpacity
-              style={styles.addProductButton}
-              onPress={() => router.push('/products?selectMode=true&returnTo=sales/new&addToSale=true')}
-            >
-              <Plus size={20} color="#ffffff" />
-            </TouchableOpacity>
-          </View>
-
-          {saleItems.length > 0 ? (
-            saleItems.map((item, index) => (
-              <View key={item.product_id} style={styles.saleItemCard}>
-                <View style={styles.saleItemHeader}>
-                  <Text style={styles.saleItemName}>{item.product_name}</Text>
-                  {item.product_category && (
-                    <View style={styles.categoryTag}>
-                      <Text style={styles.categoryText}>{item.product_category}</Text>
-                    </View>
-                  )}
-                </View>
-                <View style={styles.saleItemControls}>
-                  <View style={styles.quantityContainer}>
-                    <TouchableOpacity
-                      style={styles.quantityButton}
-                      onPress={() => updateSaleItemQuantity(item.product_id, item.quantity - 1)}
-                    >
-                      <Minus size={16} color="#6b7280" />
-                    </TouchableOpacity>
-                    <Text style={styles.quantityText}>{item.quantity}</Text>
-                    <TouchableOpacity
-                      style={styles.quantityButton}
-                      onPress={() => updateSaleItemQuantity(item.product_id, item.quantity + 1)}
-                    >
-                      <Plus size={16} color="#6b7280" />
-                    </TouchableOpacity>
-                  </View>
-                  <TextInput
-                    style={styles.priceInput}
-                    value={item.unit_price.toString()}
-                    onChangeText={(text) => updateSaleItemPrice(item.product_id, parseFloat(text) || 0)}
-                    keyboardType="numeric"
-                  />
-                </View>
-                <Text style={styles.saleItemTotal}>
-                  Total: ₺{(item.quantity * (item.product_category === 'Lazer Hastanesi' ? item.unit_price : item.unit_price * 40)).toFixed(2)}
-                </Text>
+                ))}
               </View>
-            ))
-          ) : (
-            <Text style={styles.emptyText}>No products added</Text>
-          )}
+            </View>
 
-          <View style={styles.totalContainer}>
-            <Text style={styles.totalLabel}>Total Amount:</Text>
-            <Text style={styles.totalAmount}>₺{calculateTotal().toFixed(2)}</Text>
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>Payment Method</Text>
+              <TextInput
+                style={styles.input}
+                value={formData.pay_method}
+                onChangeText={(text) => setFormData(prev => ({ ...prev, pay_method: text }))}
+                placeholder="e.g., Credit Card, Cash, Bank Transfer"
+              />
+            </View>
+
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>Shipping Cost (TRY)</Text>
+              <TextInput
+                style={styles.input}
+                value={formData.shipping_cost.toString()}
+                onChangeText={(text) => setFormData(prev => ({ ...prev, shipping_cost: parseFloat(text) || 0 }))}
+                placeholder="0.00"
+                keyboardType="numeric"
+              />
+            </View>
           </View>
-        </View>
 
-        <TouchableOpacity
-          style={[styles.saveButton, loading && styles.disabledButton]}
-          onPress={handleSave}
-          disabled={loading}
-        >
-          <Text style={styles.saveButtonText}>
-            {loading ? 'Creating...' : 'Create Sale'}
-          </Text>
-        </TouchableOpacity>
+          <View style={styles.section}>
+            <View style={styles.sectionHeader}>
+              <Text style={styles.sectionTitle}>Products</Text>
+              <TouchableOpacity
+                style={styles.addProductButton}
+                onPress={() => router.push('/products?selectMode=true&returnTo=sales/new&addToSale=true')}
+              >
+                <Plus size={20} color="#ffffff" />
+              </TouchableOpacity>
+            </View>
+
+            {saleItems.length > 0 ? (
+              saleItems.map((item, index) => (
+                <View key={item.product_id} style={styles.saleItemCard}>
+                  <View style={styles.saleItemHeader}>
+                    <Text style={styles.saleItemName}>{item.product_name}</Text>
+                    {item.product_category && (
+                      <View style={styles.categoryTag}>
+                        <Text style={styles.categoryText}>{item.product_category}</Text>
+                      </View>
+                    )}
+                  </View>
+                  <View style={styles.saleItemControls}>
+                    <View style={styles.quantityContainer}>
+                      <TouchableOpacity
+                        style={styles.quantityButton}
+                        onPress={() => updateSaleItemQuantity(item.product_id, item.quantity - 1)}
+                      >
+                        <Minus size={16} color="#6b7280" />
+                      </TouchableOpacity>
+                      <Text style={styles.quantityText}>{item.quantity}</Text>
+                      <TouchableOpacity
+                        style={styles.quantityButton}
+                        onPress={() => updateSaleItemQuantity(item.product_id, item.quantity + 1)}
+                      >
+                        <Plus size={16} color="#6b7280" />
+                      </TouchableOpacity>
+                    </View>
+                    <TextInput
+                      style={styles.priceInput}
+                      value={item.unit_price.toString()}
+                      onChangeText={(text) => updateSaleItemPrice(item.product_id, parseFloat(text) || 0)}
+                      keyboardType="numeric"
+                    />
+                  </View>
+                  <Text style={styles.saleItemTotal}>
+                    Total: ₺{(item.quantity * (item.product_category === 'Lazer Hastanesi' ? item.unit_price : item.unit_price * 40)).toFixed(2)}
+                  </Text>
+                </View>
+              ))
+            ) : (
+              <Text style={styles.emptyText}>No products added</Text>
+            )}
+
+            <View style={styles.totalContainer}>
+              <Text style={styles.totalLabel}>Total Amount:</Text>
+              <Text style={styles.totalAmount}>₺{calculateTotal().toFixed(2)}</Text>
+            </View>
+          </View>
+
+          <TouchableOpacity
+            style={[styles.saveButton, loading && styles.disabledButton]}
+            onPress={handleSave}
+            disabled={loading}
+          >
+            <Text style={styles.saveButtonText}>
+              {loading ? 'Creating...' : 'Create Sale'}
+            </Text>
+          </TouchableOpacity>
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
