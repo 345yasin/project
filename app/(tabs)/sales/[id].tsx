@@ -484,6 +484,9 @@ export default function SaleDetailScreen() {
         </View>
       </ScrollView>
 
+      {/* Half screen blank space at bottom */}
+      <View style={styles.bottomSpacing} />
+
       {/* Edit Modal */}
       <Modal
         visible={editing}
@@ -950,6 +953,9 @@ const styles = StyleSheet.create({
     color: '#9ca3af',
     textAlign: 'center',
     fontStyle: 'italic',
+  },
+  bottomSpacing: {
+    height: '50%',
   },
   modalContainer: {
     flex: 1,

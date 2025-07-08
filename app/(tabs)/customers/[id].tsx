@@ -297,6 +297,9 @@ export default function CustomerDetailScreen() {
         </View>
       </ScrollView>
 
+      {/* Half screen blank space at bottom */}
+      <View style={styles.bottomSpacing} />
+
       {/* Delete Confirmation Modal */}
       <Modal
         visible={showDeleteModal}
@@ -549,6 +552,9 @@ const styles = StyleSheet.create({
     color: '#9ca3af',
     textAlign: 'center',
     fontStyle: 'italic',
+  },
+  bottomSpacing: {
+    height: '50%',
   },
   modalOverlay: {
     flex: 1,

@@ -207,16 +207,7 @@ export default function ProductsScreen() {
         {isSelectMode && (
           <TouchableOpacity
             style={styles.backButton}
-            onPress={() => {
-              Alert.alert(
-                'Cancel Selection',
-                'Are you sure you want to cancel product selection?',
-                [
-                  { text: 'No', style: 'cancel' },
-                  { text: 'Yes', style: 'default', onPress: () => router.back() }
-                ]
-              );
-            }}
+            onPress={() => router.back()}
           >
             <ArrowLeft size={24} color="#1f2937" />
           </TouchableOpacity>

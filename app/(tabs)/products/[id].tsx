@@ -110,6 +110,9 @@ export default function ProductDetailScreen() {
           </View>
         </View>
       </ScrollView>
+
+      {/* Half screen blank space at bottom */}
+      <View style={styles.bottomSpacing} />
     </SafeAreaView>
   );
 }
@@ -226,5 +229,8 @@ const styles = StyleSheet.create({
     fontSize: 32,
     fontWeight: 'bold',
     color: '#2563eb',
+  },
+  bottomSpacing: {
+    height: '50%',
   },
 });

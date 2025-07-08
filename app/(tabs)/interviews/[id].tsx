@@ -396,6 +396,9 @@ export default function InterviewDetailScreen() {
         )}
       </ScrollView>
 
+      {/* Half screen blank space at bottom */}
+      <View style={styles.bottomSpacing} />
+
       {/* Edit Modal */}
       <Modal
         visible={editing}
@@ -856,5 +859,8 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontStyle: 'italic',
     paddingVertical: 20,
+  },
+  bottomSpacing: {
+    height: '50%',
   },
 });
