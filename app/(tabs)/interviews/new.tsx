@@ -7,6 +7,8 @@ import {
   TouchableOpacity,
   ScrollView,
   Alert,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ArrowLeft, Plus, Minus, User, Package, Calendar } from 'lucide-react-native';
@@ -71,12 +73,10 @@ export default function NewInterviewScreen() {
     if (selectedCustomerId) {
       fetchCustomer(selectedCustomerId);
     }
-    if (selectedProductId) {
-      if (addToDiscussed === 'true') {
-        fetchAndAddDiscussedProduct(selectedProductId);
-      } else {
-        fetchAndAddSaleProduct(selectedProductId);
-      }
+    if (selectedProductId && addToDiscussed === 'true') {
+      fetchAndAddDiscussedProduct(selectedProductId);
+    } else if (selectedProductId) {
+      fetchAndAddSaleProduct(selectedProductId);
     }
   }, [selectedCustomerId, selectedProductId, addToDiscussed]);
 
@@ -153,7 +153,16 @@ export default function NewInterviewScreen() {
   };
 
   const handleCustomerSelect = () => {
-    router.push('/customers?selectMode=true&returnTo=interviews/new');
+    Alert.alert(
+      'Leave Interview Form',
+      'Are you sure you want to leave? Any unsaved changes will be lost.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { text: 'Leave', style: 'destructive', onPress: () => {
+          router.push('/customers?selectMode=true&returnTo=interviews/new');
+        }}
+      ]
+    );
   };
 
   const removeDiscussedProduct = (productId: number) => {
@@ -287,7 +296,16 @@ export default function NewInterviewScreen() {
       <View style={styles.header}>
         <TouchableOpacity
           style={styles.backButton}
-          onPress={() => router.back()}
+          onPress={() => {
+            Alert.alert(
+              'Discard Interview',
+              'Are you sure you want to discard this interview? All changes will be lost.',
+              [
+                { text: 'Cancel', style: 'cancel' },
+                { text: 'Discard', style: 'destructive', onPress: () => router.back() }
+              ]
+            );
+          }}
         >
           <ArrowLeft size={24} color="#1f2937" />
         </TouchableOpacity>
@@ -295,7 +313,11 @@ export default function NewInterviewScreen() {
         <View style={styles.placeholder} />
       </View>
 
-      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+      <KeyboardAvoidingView 
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={styles.keyboardView}
+      >
+        <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Interview Information</Text>
           
@@ -564,7 +586,8 @@ export default function NewInterviewScreen() {
             {loading ? 'Creating...' : 'Create Interview'}
           </Text>
         </TouchableOpacity>
-      </ScrollView>
+        </ScrollView>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
@@ -573,6 +596,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#f8fafc',
+  },
+  keyboardView: {
+    flex: 1,
   },
   header: {
     flexDirection: 'row',

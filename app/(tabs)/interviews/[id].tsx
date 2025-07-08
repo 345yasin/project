@@ -344,7 +344,10 @@ export default function InterviewDetailScreen() {
               {discussedProducts.length > 0 ? (
                 discussedProducts.map((product) => (
                   <View key={product.id} style={styles.discussedProductItem}>
-                    <TouchableOpacity onPress={() => router.push(`/products/${product.id}`)}>
+                    <TouchableOpacity 
+                      onPress={() => router.push(`/products/${product.id}`)}
+                      style={styles.productLink}
+                    >
                       <Text style={[styles.detailValue, styles.linkText]}>
                         {product.name}
                       </Text>
@@ -647,6 +650,9 @@ const styles = StyleSheet.create({
   },
   discussedProductItem: {
     marginBottom: 12,
+  },
+  productLink: {
+    padding: 4,
   },
   productCategory: {
     fontSize: 12,

@@ -408,7 +408,25 @@ export default function SaleDetailScreen() {
               <TouchableOpacity
                 key={item.id}
                 style={styles.itemCard}
-                onPress={() => router.push(`/products/${item.products?.name}`)}
+                onPress={() => {
+                  // Find the product ID by name (this is a workaround since we don't store product_id in the join)
+                  const findProductAndNavigate = async () => {
+                    try {
+                      const { data: product, error } = await supabase
+                        .from('products')
+                        .select('id')
+                        .eq('name', item.products?.name)
+                        .single();
+                      
+                      if (product && !error) {
+                        router.push(`/products/${product.id}`);
+                      }
+                    } catch (error) {
+                      console.error('Error finding product:', error);
+                    }
+                  };
+                  findProductAndNavigate();
+                }}
               >
                 <View style={styles.itemHeader}>
                   <Text style={styles.itemName}>
