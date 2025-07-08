@@ -66,19 +66,28 @@ export default function NewInterviewScreen() {
   const [discussedProducts, setDiscussedProducts] = useState<DiscussedProduct[]>([]);
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
 
-  useEffect(() => {
+useEffect(() => {
+  const runInitialFetches = async () => {
     fetchUsers();
+
     if (selectedCustomerId) {
-      fetchCustomer(selectedCustomerId);
+      await fetchCustomer(selectedCustomerId);
     }
+
     if (selectedProductId) {
-      if (addToDiscussed === 'true') {
-        fetchAndAddDiscussedProduct(selectedProductId);
+      const shouldAddToDiscussed =
+        typeof addToDiscussed === 'string' && addToDiscussed.toLowerCase() === 'true';
+
+      if (shouldAddToDiscussed) {
+        await fetchAndAddDiscussedProduct(selectedProductId);
       } else {
-        fetchAndAddSaleProduct(selectedProductId);
+        await fetchAndAddSaleProduct(selectedProductId);
       }
     }
-  }, [selectedCustomerId, selectedProductId, addToDiscussed]);
+  };
+
+  runInitialFetches();
+}, [selectedCustomerId, selectedProductId, addToDiscussed]);
 
   const fetchUsers = async () => {
     if (isAdmin) {
