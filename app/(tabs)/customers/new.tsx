@@ -373,8 +373,6 @@ export default function NewCustomerScreen() {
 }
 
 const styles = StyleSheet.create({
-        }
-  )
   container: {
     flex: 1,
     backgroundColor: '#f8fafc',
