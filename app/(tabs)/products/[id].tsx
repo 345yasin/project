@@ -230,4 +230,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#2563eb',
   },
+  bottomSpacing: {
+    height: '50%',
+  },
 });
