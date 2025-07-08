@@ -381,7 +381,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#1f2937',
   },
-  placeholder: {bottomSpacing 
+  placeholder: 
     width: 32,
   },
   content: {
