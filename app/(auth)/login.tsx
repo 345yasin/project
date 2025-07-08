@@ -41,10 +41,6 @@ export default function LoginScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <KeyboardAvoidingView 
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        style={styles.keyboardView}
-      >
         <View style={styles.content}>
           <View style={styles.header}>
             <View style={styles.iconContainer}>
@@ -104,7 +100,6 @@ export default function LoginScreen() {
             </TouchableOpacity>
           </View>
         </View>
-      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
