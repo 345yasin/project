@@ -7,8 +7,6 @@ import {
   TouchableOpacity,
   ScrollView,
   Alert,
-  KeyboardAvoidingView,
-  Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ArrowLeft, Plus, Minus, MapPin } from 'lucide-react-native';
@@ -368,19 +366,17 @@ export default function NewCustomerScreen() {
             {loading ? 'Creating...' : 'Create Customer'}
           </Text>
         </TouchableOpacity>
-        </ScrollView>
-      </KeyboardAvoidingView>
+      </ScrollView>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+        }
+  )
   container: {
     flex: 1,
     backgroundColor: '#f8fafc',
-  },
-  keyboardView: {
-    flex: 1,
   },
   header: {
     flexDirection: 'row',
