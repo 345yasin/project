@@ -198,7 +198,7 @@ export default function NewCustomerScreen() {
       </View>
 
       <KeyboardAvoidingView 
-        behavior={Platform.OS === 'ios', 'android' ? 'padding' : 'height'}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.keyboardView}
       >
         <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
