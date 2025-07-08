@@ -395,6 +395,7 @@ export default function EditCustomerScreen() {
           </View>
         </View>
       </ScrollView>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
