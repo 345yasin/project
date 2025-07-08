@@ -954,9 +954,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontStyle: 'italic',
   },
-  bottomSpacing: {
-    height: '50%',
-  },
   modalContainer: {
     flex: 1,
     backgroundColor: '#ffffff',
