@@ -125,19 +125,6 @@ export default function NewSaleScreen() {
     }
   };
 
-  const handleCustomerSelect = () => {
-    Alert.alert(
-      'Leave Sale Form',
-      'Are you sure you want to leave? Any unsaved changes will be lost.',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        { text: 'Leave', style: 'destructive', onPress: () => {
-          router.push('/customers?selectMode=true&returnTo=sales/new');
-        }}
-      ]
-    );
-  };
-
   const handleInterviewSelect = (interview: Interview) => {
     setSelectedInterview(interview);
     setFormData(prev => ({ ...prev, interview_id: interview.id }));
