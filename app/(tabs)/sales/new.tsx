@@ -125,12 +125,8 @@ export default function NewSaleScreen() {
     }
   };
 
-    const handleCustomerSelect = (customer: Customer) => {
-    if (isSelectMode && returnTo) {
-      router.push(`/${returnTo}?selectedCustomerId=${customer.id}`);
-    } else {
-      router.push(`/customers/${customer.id}`);
-    }
+  const handleCustomerSelect = () => {
+    router.push('/customers?selectMode=true&returnTo=sales/new');
   };
   
   const handleInterviewSelect = (interview: Interview) => {
