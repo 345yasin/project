@@ -102,10 +102,6 @@ export default function NewUserScreen() {
         <View style={styles.placeholder} />
       </View>
 
-      <KeyboardAvoidingView 
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        style={styles.keyboardView}
-      >
         <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
           <View style={styles.iconContainer}>
             <UserPlus size={48} color="#2563eb" />
@@ -206,7 +202,6 @@ export default function NewUserScreen() {
             </TouchableOpacity>
           </View>
         </ScrollView>
-      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
