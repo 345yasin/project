@@ -860,7 +860,4 @@ const styles = StyleSheet.create({
     fontStyle: 'italic',
     paddingVertical: 20,
   },
-  bottomSpacing: {
-    height: '50%',
-  },
 });
