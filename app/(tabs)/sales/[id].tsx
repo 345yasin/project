@@ -28,8 +28,6 @@ type Sale = Database['public']['Tables']['sales']['Row'] & {
   }>;
 };
 
-type Product = Database['public']['Tables']['products']['Row'];
-
 interface SaleItem {
   id?: number;
   product_id: number;
@@ -41,6 +39,10 @@ interface SaleItem {
 
 export default function SaleDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
+  const { selectedProductId, addToSale } = useLocalSearchParams<{
+    selectedProductId?: string;
+    addToSale?: string;
+  }>();
   const router = useRouter();
   const [sale, setSale] = useState<Sale | null>(null);
   const [loading, setLoading] = useState(true);
@@ -124,7 +126,7 @@ export default function SaleDetailScreen() {
     }
   };
 
-  const addSaleItem = (product: Product) => {
+  const addSaleItem = (product: any) => {
     const existingItem = saleItems.find(item => item.product_id === product.id);
     if (existingItem) {
       setSaleItems(prev => prev.map(item =>

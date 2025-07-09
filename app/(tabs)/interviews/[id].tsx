@@ -44,10 +44,14 @@ export default function InterviewDetailScreen() {
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(false);
   const [discussedProducts, setDiscussedProducts] = useState<DiscussedProduct[]>([]);
+  const [saleItems, setSaleItems] = useState<SaleItem[]>([]);
   const [editData, setEditData] = useState({
     operator: '',
     notes: '',
     sale_succeeded: false,
+    platform: 'phone' as 'phone' | 'f2f' | 'trendyol' | 'hepsiburada' | 'n11',
+    shipping_cost: 0,
+    pay_method: '',
   });
 
   useEffect(() => {
@@ -78,6 +82,9 @@ export default function InterviewDetailScreen() {
         operator: data.operator,
         notes: data.notes || '',
         sale_succeeded: data.sale_succeeded || false,
+        platform: 'phone',
+        shipping_cost: 0,
+        pay_method: '',
       });
 
       // Initialize discussed products with the main product
@@ -89,11 +96,42 @@ export default function InterviewDetailScreen() {
           price: data.products.price,
         }]);
       }
+
+      // If there are related sales, load the sale items
+      if (data.sales && data.sales.length > 0) {
+        fetchSaleItems(data.sales[0].id);
+      }
     } catch (error) {
       console.error('Error fetching interview:', error);
       Alert.alert('Error', 'Failed to load interview');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchSaleItems = async (saleId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('sale_items')
+        .select(`
+          *,
+          products (name, category, price)
+        `)
+        .eq('sale_id', saleId);
+
+      if (error) throw error;
+      
+      const items = data?.map(item => ({
+        product_id: item.product_id!,
+        product_name: item.products?.name || 'Unknown Product',
+        product_category: item.products?.category || null,
+        quantity: item.quantity,
+        unit_price: item.unit_price,
+      })) || [];
+      
+      setSaleItems(items);
+    } catch (error) {
+      console.error('Error fetching sale items:', error);
     }
   };
 
@@ -120,6 +158,53 @@ export default function InterviewDetailScreen() {
     } catch (error) {
       console.error('Error fetching product:', error);
     }
+  };
+
+  const addSaleItem = (product: Product) => {
+    const existingItem = saleItems.find(item => item.product_id === product.id);
+    if (existingItem) {
+      setSaleItems(prev => prev.map(item =>
+        item.product_id === product.id
+          ? { ...item, quantity: item.quantity + 1 }
+          : item
+      ));
+    } else {
+      setSaleItems(prev => [...prev, {
+        product_id: product.id,
+        product_name: product.name,
+        product_category: product.category,
+        quantity: 1,
+        unit_price: product.price,
+      }]);
+    }
+  };
+
+  const updateSaleItemQuantity = (productId: number, quantity: number) => {
+    if (quantity <= 0) {
+      setSaleItems(prev => prev.filter(item => item.product_id !== productId));
+    } else {
+      setSaleItems(prev => prev.map(item =>
+        item.product_id === productId
+          ? { ...item, quantity }
+          : item
+      ));
+    }
+  };
+
+  const updateSaleItemPrice = (productId: number, price: number) => {
+    setSaleItems(prev => prev.map(item =>
+      item.product_id === productId
+        ? { ...item, unit_price: price }
+        : item
+    ));
+  };
+
+  const calculateTotal = () => {
+    const itemsTotal = saleItems.reduce((total, item) => {
+      const convertedPrice = item.product_category === 'Lazer Hastanesi' ? item.unit_price : item.unit_price * 40;
+      return total + (item.quantity * convertedPrice);
+    }, 0);
+    return itemsTotal + editData.shipping_cost;
   };
 
   const canEdit = () => {
@@ -500,6 +585,118 @@ export default function InterviewDetailScreen() {
               </View>
             </View>
 
+            {/* Sale Information Panel - Only shown when sale succeeded */}
+            {editData.sale_succeeded && (
+              <>
+                <View style={styles.inputGroup}>
+                  <Text style={styles.label}>Platform *</Text>
+                  <View style={styles.platformContainer}>
+                    {['phone', 'f2f', 'trendyol', 'hepsiburada', 'n11'].map((platform) => (
+                      <TouchableOpacity
+                        key={platform}
+                        style={[
+                          styles.platformButton,
+                          editData.platform === platform && styles.selectedPlatformButton
+                        ]}
+                        onPress={() => setEditData(prev => ({ ...prev, platform: platform as any }))}
+                      >
+                        <Text style={[
+                          styles.platformButtonText,
+                          editData.platform === platform && styles.selectedPlatformButtonText
+                        ]}>
+                          {platform.toUpperCase()}
+                        </Text>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                </View>
+
+                <View style={styles.inputGroup}>
+                  <Text style={styles.label}>Payment Method</Text>
+                  <TextInput
+                    style={styles.input}
+                    value={editData.pay_method}
+                    onChangeText={(text) => setEditData(prev => ({ ...prev, pay_method: text }))}
+                    placeholder="e.g., Credit Card, Cash, Bank Transfer"
+                  />
+                </View>
+
+                <View style={styles.inputGroup}>
+                  <Text style={styles.label}>Shipping Cost (TRY)</Text>
+                  <TextInput
+                    style={styles.input}
+                    value={editData.shipping_cost.toString()}
+                    onChangeText={(text) => setEditData(prev => ({ ...prev, shipping_cost: parseFloat(text) || 0 }))}
+                    placeholder="0.00"
+                    keyboardType="numeric"
+                  />
+                </View>
+
+                <View style={styles.inputGroup}>
+                  <View style={styles.sectionHeader}>
+                    <Text style={styles.label}>Products *</Text>
+                    <TouchableOpacity
+                      style={styles.addProductButton}
+                      onPress={() => router.push('/products?selectMode=true&returnTo=interviews/' + id + '&addToSale=true')}
+                    >
+                      <Plus size={16} color="#ffffff" />
+                      <Text style={styles.addProductText}>Add Product</Text>
+                    </TouchableOpacity>
+                  </View>
+
+                  {saleItems.length > 0 ? (
+                    saleItems.map((item) => (
+                      <View key={item.product_id} style={styles.saleItemCard}>
+                        <View style={styles.saleItemHeader}>
+                          <Text style={styles.saleItemName}>{item.product_name}</Text>
+                          {item.product_category && (
+                            <View style={styles.categoryTag}>
+                              <Text style={styles.categoryText}>{item.product_category}</Text>
+                            </View>
+                          )}
+                        </View>
+                        <View style={styles.saleItemControls}>
+                          <View style={styles.quantityContainer}>
+                            <TouchableOpacity
+                              style={styles.quantityButton}
+                              onPress={() => updateSaleItemQuantity(item.product_id, item.quantity - 1)}
+                            >
+                              <Minus size={16} color="#6b7280" />
+                            </TouchableOpacity>
+                            <Text style={styles.quantityText}>{item.quantity}</Text>
+                            <TouchableOpacity
+                              style={styles.quantityButton}
+                              onPress={() => updateSaleItemQuantity(item.product_id, item.quantity + 1)}
+                            >
+                              <Plus size={16} color="#6b7280" />
+                            </TouchableOpacity>
+                          </View>
+                          <TextInput
+                            style={styles.priceInput}
+                            value={item.unit_price.toString()}
+                            onChangeText={(text) => updateSaleItemPrice(item.product_id, parseFloat(text) || 0)}
+                            keyboardType="numeric"
+                          />
+                        </View>
+                        <Text style={styles.saleItemTotal}>
+                          Total: ₺{(item.quantity * (item.product_category === 'Lazer Hastanesi' ? item.unit_price : item.unit_price * 40)).toFixed(2)}
+                        </Text>
+                      </View>
+                    ))
+                  ) : (
+                    <Text style={styles.emptyText}>No products added</Text>
+                  )}
+
+                  {saleItems.length > 0 && (
+                    <View style={styles.totalContainer}>
+                      <Text style={styles.totalLabel}>Total Amount:</Text>
+                      <Text style={styles.totalAmount}>₺{calculateTotal().toFixed(2)}</Text>
+                    </View>
+                  )}
+                </View>
+              </>
+            )}
+
             <View style={styles.inputGroup}>
               <Text style={styles.label}>Notes</Text>
               <TextInput
@@ -852,6 +1049,111 @@ const styles = StyleSheet.create({
   },
   selectedSuccessButtonText: {
     color: '#ffffff',
+  },
+  platformContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  platformButton: {
+    backgroundColor: '#ffffff',
+    borderWidth: 1,
+    borderColor: '#d1d5db',
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+  },
+  selectedPlatformButton: {
+    backgroundColor: '#2563eb',
+    borderColor: '#2563eb',
+  },
+  platformButtonText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#6b7280',
+  },
+  selectedPlatformButtonText: {
+    color: '#ffffff',
+  },
+  saleItemCard: {
+    backgroundColor: '#f8fafc',
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+  },
+  saleItemHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  saleItemName: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#1f2937',
+    flex: 1,
+  },
+  saleItemControls: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  quantityContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  quantityButton: {
+    backgroundColor: '#f3f4f6',
+    borderRadius: 6,
+    padding: 8,
+  },
+  quantityText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#1f2937',
+    minWidth: 30,
+    textAlign: 'center',
+  },
+  priceInput: {
+    backgroundColor: '#ffffff',
+    borderWidth: 1,
+    borderColor: '#d1d5db',
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    fontSize: 16,
+    color: '#1f2937',
+    width: 100,
+    textAlign: 'right',
+  },
+  saleItemTotal: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#2563eb',
+    textAlign: 'right',
+  },
+  totalContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    borderTopWidth: 1,
+    borderTopColor: '#e5e7eb',
+    paddingTop: 16,
+    marginTop: 16,
+  },
+  totalLabel: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#1f2937',
+  },
+  totalAmount: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#2563eb',
   },
   emptyText: {
     fontSize: 14,
