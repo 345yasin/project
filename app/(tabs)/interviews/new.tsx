@@ -67,7 +67,6 @@ export default function NewInterviewScreen() {
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
 
 useEffect(() => {
-    console.log('Params:', { selectedCustomerId, selectedProductId, addToDiscussed });
   const runInitialFetches = async () => {
     fetchUsers();
 
