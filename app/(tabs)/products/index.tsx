@@ -153,8 +153,8 @@ export default function ProductsScreen() {
     if (isSelectMode && returnTo) {
       if (addToSale === 'true') {
         router.push(`/${returnTo}?selectedProductId=${product.id}&addToSale=true`);
-      } else if (returnTo.includes('addToDiscussed=true')) {
-        router.push(`/${returnTo}&selectedProductId=${product.id}`);
+      } else if (returnTo && returnTo.includes('addToDiscussed=true')) {
+        router.push(`/${returnTo}&selectedProductId=${product.id}&addToDiscussed=true`);
       } else {
         router.push(`/${returnTo}?selectedProductId=${product.id}`);
       }

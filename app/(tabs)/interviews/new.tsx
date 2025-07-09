@@ -75,10 +75,7 @@ useEffect(() => {
     }
 
     if (selectedProductId) {
-      const shouldAddToDiscussed =
-        typeof addToDiscussed === 'string' && addToDiscussed.toLowerCase() === 'true';
-
-      if (shouldAddToDiscussed) {
+      if (addToDiscussed === 'true') {
         await fetchAndAddDiscussedProduct(selectedProductId);
       } else {
         await fetchAndAddSaleProduct(selectedProductId);

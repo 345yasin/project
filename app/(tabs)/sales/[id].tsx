@@ -25,7 +25,6 @@ type Sale = Database['public']['Tables']['sales']['Row'] & {
     quantity: number;
     unit_price: number;
     products?: { name: string; category: string | null; image_url: string | null };
-  }>;
 };
 
 interface SaleItem {
@@ -39,17 +38,15 @@ interface SaleItem {
 
 export default function SaleDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
+  const router = useRouter();
   const { selectedProductId, addToSale } = useLocalSearchParams<{
     selectedProductId?: string;
     addToSale?: string;
   }>();
-  const router = useRouter();
+  
   const [sale, setSale] = useState<Sale | null>(null);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(false);
-  const [showProductModal, setShowProductModal] = useState(false);
-  const [products, setProducts] = useState<Product[]>([]);
-  const [searchQuery, setSearchQuery] = useState('');
   const [editData, setEditData] = useState({
     platform: 'phone' as 'phone' | 'f2f' | 'trendyol' | 'hepsiburada' | 'n11',
     shipping_cost: 0,
@@ -61,9 +58,26 @@ export default function SaleDetailScreen() {
   useEffect(() => {
     if (id) {
       fetchSale();
-      fetchProducts();
+    }
+    if (selectedProductId && addToSale === 'true') {
+      fetchAndAddProduct(selectedProductId);
     }
   }, [id]);
+
+  const fetchAndAddProduct = async (productId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('products')
+        .select('*')
+        .eq('id', productId)
+        .single();
+
+      if (error) throw error;
+      addSaleItem(data);
+    } catch (error) {
+      console.error('Error fetching product:', error);
+    }
+  };
 
   const fetchSale = async () => {
     try {
@@ -109,20 +123,6 @@ export default function SaleDetailScreen() {
       Alert.alert('Error', 'Failed to load sale');
     } finally {
       setLoading(false);
-    }
-  };
-
-  const fetchProducts = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('products')
-        .select('*')
-        .order('name', { ascending: true });
-
-      if (error) throw error;
-      setProducts(data || []);
-    } catch (error) {
-      console.error('Error fetching products:', error);
     }
   };
 
@@ -556,7 +556,7 @@ export default function SaleDetailScreen() {
                 <Text style={styles.label}>Products</Text>
                 <TouchableOpacity
                   style={styles.addProductButton}
-                  onPress={() => setShowProductModal(true)}
+                  onPress={() => router.push('/products?selectMode=true&returnTo=sales/' + id + '&addToSale=true')}
                 >
                   <Plus size={16} color="#ffffff" />
                   <Text style={styles.addProductText}>Add</Text>
@@ -651,61 +651,6 @@ export default function SaleDetailScreen() {
               </View>
             </View>
           </ScrollView>
-        </SafeAreaView>
-      </Modal>
-
-      {/* Product Modal */}
-      <Modal
-        visible={showProductModal}
-        animationType="slide"
-        presentationStyle="pageSheet"
-      >
-        <SafeAreaView style={styles.modalContainer}>
-          <View style={styles.modalHeader}>
-            <Text style={styles.modalTitle}>Add Product</Text>
-            <TouchableOpacity onPress={() => setShowProductModal(false)}>
-              <X size={24} color="#6b7280" />
-            </TouchableOpacity>
-          </View>
-          
-          <View style={styles.searchContainer}>
-            <Search size={20} color="#6b7280" />
-            <TextInput
-              style={styles.searchInput}
-              placeholder="Search products by name or category..."
-              value={searchQuery}
-              onChangeText={setSearchQuery}
-            />
-          </View>
-
-          <FlatList
-            data={filteredProducts}
-            renderItem={({ item }) => (
-              <TouchableOpacity
-                style={styles.modalItem}
-                onPress={() => addSaleItem(item)}
-              >
-                <View style={styles.productModalItem}>
-                  <View style={styles.productModalInfo}>
-                    <Text style={styles.productModalName}>{item.name}</Text>
-                    {item.category && (
-                      <View style={styles.categoryTag}>
-                        <Text style={styles.categoryText}>{item.category}</Text>
-                      </View>
-                    )}
-                  </View>
-                  <View style={styles.priceContainer}>
-                    <CurrencyIcon category={item.category} size={16} color="#2563eb" />
-                    <Text style={styles.productModalPrice}>
-                      {formatPrice(item.price, item.category)}
-                    </Text>
-                  </View>
-                </View>
-              </TouchableOpacity>
-            )}
-            keyExtractor={(item) => item.id.toString()}
-            style={styles.modalList}
-          />
         </SafeAreaView>
       </Modal>
     </SafeAreaView>
@@ -1162,47 +1107,7 @@ const styles = StyleSheet.create({
   selectedCanceledButtonText: {
     color: '#ffffff',
   },
-  searchContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#f3f4f6',
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    margin: 20,
-    gap: 12,
-  },
-  searchInput: {
-    flex: 1,
-    fontSize: 16,
-    color: '#1f2937',
-  },
-  modalList: {
-    flex: 1,
-  },
-  modalItem: {
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#f3f4f6',
-  },
-  productModalItem: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  productModalInfo: {
-    flex: 1,
-    marginRight: 12,
-  },
-  productModalName: {
-    fontSize: 16,
-    color: '#1f2937',
-    marginBottom: 4,
-  },
-  productModalPrice: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#2563eb',
+  bottomSpacing: {
+    height: '50%',
   },
 });

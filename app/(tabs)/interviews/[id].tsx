@@ -58,10 +58,29 @@ export default function InterviewDetailScreen() {
     if (id) {
       fetchInterview();
     }
-    if (selectedProductId && addToDiscussed === 'true') {
-      fetchAndAddDiscussedProduct(selectedProductId);
+    if (selectedProductId) {
+      if (addToDiscussed === 'true') {
+        fetchAndAddDiscussedProduct(selectedProductId);
+      } else if (addToSale === 'true') {
+        fetchAndAddSaleProduct(selectedProductId);
+      }
     }
-  }, [id, selectedProductId, addToDiscussed]);
+  }, [id, selectedProductId, addToDiscussed, addToSale]);
+
+  const fetchAndAddSaleProduct = async (productId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('products')
+        .select('*')
+        .eq('id', productId)
+        .single();
+
+      if (error) throw error;
+      addSaleItem(data);
+    } catch (error) {
+      console.error('Error fetching product:', error);
+    }
+  };
 
   const fetchInterview = async () => {
     try {
